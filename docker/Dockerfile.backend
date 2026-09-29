@@ -1,0 +1,49 @@
+# --- Stage 1: build dependencies with uv ---
+FROM python:3.13-slim AS builder
+
+# Install uv (fast Python package manager, per SPEC)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+WORKDIR /app
+
+# Copy dependency manifests first for layer caching
+COPY pyproject.toml uv.lock* ./
+
+# Sync dependencies into a project venv (no editable install of the app yet)
+RUN uv sync --frozen --no-install-project --no-dev || uv sync --no-install-project --no-dev
+
+# --- Stage 2: runtime ---
+FROM python:3.13-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_COMPILE_BYTECODE=1
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+WORKDIR /app
+
+# Copy the virtualenv from the builder stage
+COPY --from=builder /app/.venv /app/.venv
+
+# Put venv on PATH so `uvicorn` resolves directly
+ENV PATH="/app/.venv/bin:$PATH" \
+    VIRTUAL_ENV=/app/.venv
+
+# Copy the project source (backend package + entrypoints)
+COPY backend/ ./backend/
+COPY main.py pyproject.toml ./
+
+# Non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && mkdir -p /app/data \
+    && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8000
+
+# Healthcheck endpoint served by FastAPI at /health
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"
+
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
