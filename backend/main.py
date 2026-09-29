@@ -1,4 +1,6 @@
 """Site-FastAPI application entry point."""
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -7,14 +9,22 @@ from pathlib import Path
 from backend.api.router import api_router
 from backend.config import settings
 from backend.database import engine, Base
+from backend.models import user  # noqa: F401 — register models before create_all
 
-# Create database tables on startup
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create database tables on startup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
 
 app = FastAPI(
     title="Site-FastAPI",
     description="Personal site with FastAPI backend and Next.js frontend",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # CORS for Next.js dev server
