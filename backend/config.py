@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # Server
     HOST: str = "0.0.0.0"
     PORT: int = 8000
+
+    # Admin API bearer token (temporary until full OAuth admin flow)
+    ADMIN_TOKEN: Optional[str] = None
     
     model_config = {
         "env_file": ".env",
