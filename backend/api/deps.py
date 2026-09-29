@@ -60,7 +60,7 @@ async def get_current_admin(
 
 async def get_provider(provider: str) -> str:
     """Validate OAuth provider."""
-    valid_providers = [p.value for p in OAuthProvider]
+    valid_providers = ["github", "google", "telegram"]
     if provider not in valid_providers:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

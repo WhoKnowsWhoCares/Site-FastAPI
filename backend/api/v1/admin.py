@@ -1,5 +1,6 @@
 """Admin endpoints: POST/PUT/DELETE /api/v1/admin/content."""
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Body
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.deps import get_current_admin, get_db
@@ -168,14 +169,20 @@ async def list_all_projects(
     }
 
 
+class ContentOrder(BaseModel):
+    content_id: int
+    order: int
+
+
 @router.post("/content/reorder")
 async def reorder_content(
-    section: SectionType,
-    content_orders: list[tuple[int, int]],
+    section: SectionType = Body(...),
+    content_orders: list[ContentOrder] = Body(...),
     admin: dict = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """Reorder content blocks in a section (admin only)."""
+    orders = [(o.content_id, o.order) for o in content_orders]
     service = ContentService(db)
-    await service.reorder_content(section, content_orders)
+    await service.reorder_content(section, orders)
     return {"message": "Content reordered successfully"}

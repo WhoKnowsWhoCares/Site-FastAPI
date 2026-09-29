@@ -1,6 +1,7 @@
 """Test conftest with pytest fixtures."""
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
 import pytest_asyncio
@@ -172,3 +173,28 @@ async def test_project(test_db):
     await test_db.commit()
     await test_db.refresh(project)
     return project
+
+
+@pytest.fixture
+def mock_oauth_settings():
+    """Mock OAuth settings so tests don't require real API keys."""
+    with patch("backend.services.oauth_service.settings") as mock_settings:
+        mock_settings.github_client_id = "fake_github_id"
+        mock_settings.github_client_secret = "fake_github_secret"
+        mock_settings.google_client_id = "fake_google_id"
+        mock_settings.google_client_secret = "fake_google_secret"
+        mock_settings.telegram_bot_token = "fake_telegram_token"
+        mock_settings.oauth_redirect_uri = "http://test/auth/callback"
+        yield mock_settings
+
+
+@pytest.fixture
+def mock_oauth_service_methods():
+    """Mock OAuth service methods to return predictable URLs (use in specific tests)."""
+    with patch("backend.services.oauth_service.OAuthService.get_github_auth_url") as mock_github, \
+         patch("backend.services.oauth_service.OAuthService.get_google_auth_url") as mock_google, \
+         patch("backend.services.oauth_service.OAuthService.get_telegram_auth_url") as mock_telegram:
+        mock_github.return_value = "https://github.com/login/oauth/authorize?client_id=fake&state=mock"
+        mock_google.return_value = "https://accounts.google.com/o/oauth2/v2/auth?client_id=fake&state=mock"
+        mock_telegram.return_value = "https://t.me/auth?bot=fake&state=mock"
+        yield mock_github

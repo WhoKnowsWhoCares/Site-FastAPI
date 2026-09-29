@@ -48,6 +48,15 @@ async def list_content(
     }
 
 
+@router.get("/all-sections")
+async def get_all_sections(
+    db: AsyncSession = Depends(get_db),
+):
+    """Get data for all sections."""
+    service = ContentService(db)
+    return await service.get_all_sections_data()
+
+
 @router.get("/{section}")
 async def get_section_content(
     section: SectionType,
@@ -95,12 +104,3 @@ async def get_content_item(
         )
     
     return ContentRead.model_validate(content).model_dump()
-
-
-@router.get("/all-sections")
-async def get_all_sections(
-    db: AsyncSession = Depends(get_db),
-):
-    """Get data for all sections."""
-    service = ContentService(db)
-    return await service.get_all_sections_data()
