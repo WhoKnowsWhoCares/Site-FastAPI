@@ -1,10 +1,20 @@
 """Content models for pages, projects, and media."""
 from enum import StrEnum
 
-from sqlalchemy import Enum, Integer, String, Text
+import sqlalchemy as sa
+from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base, TimestampMixin
+
+
+def _enum_column(enum_cls: type[StrEnum]) -> sa.Enum:
+    """VARCHAR-backed enum (matches migrations) storing StrEnum values."""
+    return sa.Enum(
+        enum_cls,
+        values_callable=lambda e: [m.value for m in e],
+        native_enum=False,
+    )
 
 
 class SectionType(StrEnum):
@@ -36,12 +46,12 @@ class PageContent(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     section: Mapped[SectionType] = mapped_column(
-        Enum(SectionType),
+        _enum_column(SectionType),
         nullable=False,
         index=True,
     )
     content_type: Mapped[ContentType] = mapped_column(
-        Enum(ContentType),
+        _enum_column(ContentType),
         nullable=False,
     )
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -61,7 +71,7 @@ class Project(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     section: Mapped[SectionType] = mapped_column(
-        Enum(SectionType),
+        _enum_column(SectionType),
         nullable=False,
         index=True,
     )
@@ -93,7 +103,7 @@ class Media(Base, TimestampMixin):
     path: Mapped[str] = mapped_column(String(500), nullable=False)
     url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     section: Mapped[SectionType | None] = mapped_column(
-        Enum(SectionType),
+        _enum_column(SectionType),
         nullable=True,
         index=True,
     )

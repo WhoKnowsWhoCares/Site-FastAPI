@@ -32,7 +32,8 @@ _migrations_url = settings.database_url
 if _migrations_url.startswith("sqlite+aiosqlite://"):
     _migrations_url = _migrations_url.replace("sqlite+aiosqlite://", "sqlite://", 1)
 elif _migrations_url.startswith("postgresql+asyncpg://"):
-    _migrations_url = _migrations_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+    # Alembic runs synchronously: switch to the installed psycopg2 sync driver
+    _migrations_url = _migrations_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
 # Override sqlalchemy.url from alembic.ini with the runtime DATABASE_URL
 config.set_main_option("sqlalchemy.url", _migrations_url)
 

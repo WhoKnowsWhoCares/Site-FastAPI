@@ -24,10 +24,10 @@ def upgrade() -> None:
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('avatar_url', sa.String(500), nullable=True),
         sa.Column('hashed_password', sa.String(255), nullable=True),
-        sa.Column('is_active', sa.Boolean(), default=True, nullable=False),
-        sa.Column('is_admin', sa.Boolean(), default=False, nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('is_active', sa.Boolean(), server_default=sa.true(), nullable=False),
+        sa.Column('is_admin', sa.Boolean(), server_default=sa.false(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.UniqueConstraint('email'),
     )
     op.create_index('ix_users_email', 'users', ['email'])
@@ -41,8 +41,8 @@ def upgrade() -> None:
         sa.Column('access_token', sa.String(500), nullable=True),
         sa.Column('refresh_token', sa.String(500), nullable=True),
         sa.Column('expires_at', sa.Integer(), nullable=True),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.UniqueConstraint('provider', 'provider_user_id', name='uq_provider_user'),
     )
 
@@ -54,10 +54,10 @@ def upgrade() -> None:
         sa.Column('title', sa.String(255), nullable=True),
         sa.Column('body', sa.Text(), nullable=True),
         sa.Column('data', sa.Text(), nullable=True),
-        sa.Column('order', sa.Integer(), default=0, nullable=False),
-        sa.Column('is_published', sa.Boolean(), default=True, nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('order', sa.Integer(), server_default='0', nullable=False),
+        sa.Column('is_published', sa.Boolean(), server_default=sa.true(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
 
     # projects table
@@ -72,10 +72,10 @@ def upgrade() -> None:
         sa.Column('project_url', sa.String(500), nullable=True),
         sa.Column('github_url', sa.String(500), nullable=True),
         sa.Column('technologies', sa.Text(), nullable=True),
-        sa.Column('order', sa.Integer(), default=0, nullable=False),
-        sa.Column('is_published', sa.Boolean(), default=True, nullable=False),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('order', sa.Integer(), server_default='0', nullable=False),
+        sa.Column('is_published', sa.Boolean(), server_default=sa.true(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
 
     # media table
@@ -88,8 +88,8 @@ def upgrade() -> None:
         sa.Column('path', sa.String(500), nullable=False),
         sa.Column('url', sa.String(500), nullable=True),
         sa.Column('section', sa.String(50), nullable=True, index=True),
-        sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
 
 
