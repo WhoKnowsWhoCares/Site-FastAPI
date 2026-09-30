@@ -18,11 +18,10 @@
 git clone <repo-url>
 cd Site-FastAPI
 
-# --- Бэкенд ---
-cd backend
-uv sync                                    # Установить зависимости
-cp .env.example .env                       # Скопировать конфиг (по умолчанию dev)
-uv run uvicorn main:app --reload           # Запуск на :8000
+# --- Бэкенд (из корня репозитория) ---
+cp backend/.env.example backend/.env               # Скопировать конфиг (по умолчанию dev)
+uv sync                                            # Установить зависимости
+uv run uvicorn backend.main:app --reload   # Запуск на :8000
 
 # --- Фронтенд ---
 cd ../frontend
