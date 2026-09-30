@@ -25,6 +25,7 @@ export default function OAuthCallbackInner() {
     const next = searchParams.get("next") ?? CONTROL_PANEL_PATH;
 
     if (oauthError) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot OAuth error capture, guarded by attemptedRef
       setError(oauthError);
       return;
     }

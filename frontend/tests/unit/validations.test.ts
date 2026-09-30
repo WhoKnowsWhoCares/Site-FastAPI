@@ -105,7 +105,7 @@ describe('contentFormSchema', () => {
 
   it('rejects invalid section', () => {
     const result = contentFormSchema.safeParse({
-      section: 'invalid-section' as any,
+      section: 'invalid-section' as unknown as 'hero',
       title: 'Test',
       slug: 'test',
       body: 'Body',

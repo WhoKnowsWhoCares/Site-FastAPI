@@ -42,6 +42,7 @@ function ContentPageInner() {
   // "New content item" quick action opens the create dialog via ?new=1
   useEffect(() => {
     if (searchParams.get("new") === "1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- opening dialog from URL param; runs once before cleanup via router.replace
       setEditingItem(null);
       setFormOpen(true);
       router.replace("/controlpanel/content");

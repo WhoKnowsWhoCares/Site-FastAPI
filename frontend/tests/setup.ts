@@ -22,13 +22,13 @@ vi.mock('next/navigation', () => ({
 
 // Mock next/link
 vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: any) =>
+  default: ({ children, href, ...props }: React.ComponentPropsWithoutRef<'a'> & { href: string }) =>
     React.createElement('a', { href, ...props }, children),
 }));
 
 // Mock next/image
 vi.mock('next/image', () => ({
-  default: (props: any) => React.createElement('img', props),
+  default: (props: React.ComponentPropsWithoutRef<'img'>) => React.createElement('img', props),
 }));
 
 import React from 'react';
