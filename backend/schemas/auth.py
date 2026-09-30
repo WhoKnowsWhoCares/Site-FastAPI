@@ -1,6 +1,6 @@
 """Authentication schemas."""
 from datetime import datetime
-from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -26,7 +26,7 @@ class UserBase(BaseModel):
 
     email: EmailStr
     name: str = Field(..., min_length=1, max_length=255)
-    avatar_url: Optional[str] = None
+    avatar_url: str | None = None
 
 
 class UserCreate(UserBase):
@@ -38,10 +38,10 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     """User update schema."""
 
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    avatar_url: Optional[str] = None
-    is_active: Optional[bool] = None
-    is_admin: Optional[bool] = None
+    name: str | None = Field(None, min_length=1, max_length=255)
+    avatar_url: str | None = None
+    is_active: bool | None = None
+    is_admin: bool | None = None
 
 
 class UserRead(UserBase):
@@ -68,8 +68,8 @@ class OAuthCallback(BaseModel):
 
     code: str
     state: str
-    error: Optional[str] = None
-    error_description: Optional[str] = None
+    error: str | None = None
+    error_description: str | None = None
 
 
 class OAuthProvider(str):

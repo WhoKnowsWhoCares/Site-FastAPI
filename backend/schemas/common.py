@@ -1,5 +1,6 @@
 """Common schemas for pagination and error responses."""
-from typing import Generic, Optional, TypeVar
+from typing import TypeVar
+
 from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
@@ -12,7 +13,7 @@ class PaginationParams(BaseModel):
     page_size: int = Field(20, ge=1, le=100, description="Items per page")
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     """Generic paginated response."""
 
     items: list[T]
@@ -28,7 +29,7 @@ class ErrorResponse(BaseModel):
     """Error response schema."""
 
     detail: str
-    error_code: Optional[str] = None
+    error_code: str | None = None
     status_code: int
 
 
@@ -36,7 +37,7 @@ class SuccessResponse(BaseModel):
     """Generic success response."""
 
     message: str
-    data: Optional[dict] = None
+    data: dict | None = None
 
 
 class HealthCheckResponse(BaseModel):

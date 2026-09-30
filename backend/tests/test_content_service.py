@@ -1,9 +1,8 @@
 """Integration tests for content service methods."""
 import pytest
-from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.content import SectionType, ContentType, PageContent, Project
+from backend.models.content import ContentType, PageContent, Project, SectionType
 from backend.schemas.content import ContentCreate, ContentUpdate, ProjectCreate, ProjectUpdate
 from backend.services.content_service import ContentService
 
@@ -62,7 +61,6 @@ async def test_get_content_by_id_not_found(test_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_create_content(test_db: AsyncSession):
     """Test creating a new content block."""
-    from backend.schemas.content import ContentCreate
 
     data = ContentCreate(
         section="sdart",
@@ -79,7 +77,6 @@ async def test_create_content(test_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_update_content(test_db: AsyncSession):
     """Test updating an existing content block."""
-    from backend.schemas.content import ContentUpdate
 
     content = PageContent(
         section=SectionType.ABOUTME,
@@ -99,7 +96,6 @@ async def test_update_content(test_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_update_content_not_found(test_db: AsyncSession):
     """Test updating non-existent content returns None."""
-    from backend.schemas.content import ContentUpdate
 
     service = ContentService(test_db)
     result = await service.update_content(99999, ContentUpdate(title="Nope"))
@@ -164,7 +160,6 @@ async def test_get_project_by_slug(test_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_create_project(test_db: AsyncSession):
     """Test creating a new project."""
-    from backend.schemas.content import ProjectCreate
 
     data = ProjectCreate(
         section=SectionType.IHOME,
@@ -181,7 +176,6 @@ async def test_create_project(test_db: AsyncSession):
 @pytest.mark.asyncio
 async def test_update_project(test_db: AsyncSession):
     """Test updating a project."""
-    from backend.schemas.content import ProjectUpdate
 
     project = Project(
         section=SectionType.ABOUTME,

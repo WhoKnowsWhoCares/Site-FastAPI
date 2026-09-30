@@ -5,10 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
 from backend.models.user import User
-from backend.schemas.auth import OAuthProvider
 from backend.services.auth_service import AuthService
 from backend.services.oauth_service import OAuthService
-
 
 # Security scheme
 security = HTTPBearer()
@@ -42,20 +40,15 @@ async def get_current_user(
 
 
 async def get_current_admin(
-    current_user=Depends(get_current_user),
-) -> dict:
+    current_user: User = Depends(get_current_user),
+) -> User:
     """Get current admin user. Requires is_admin=True."""
     if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required",
         )
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "name": current_user.name,
-        "is_admin": True,
-    }
+    return current_user
 
 
 async def get_provider(provider: str) -> str:

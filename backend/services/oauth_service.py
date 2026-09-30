@@ -1,7 +1,7 @@
 """OAuth service for GitHub, Google, and Telegram authentication."""
 import secrets
 from urllib.parse import urlencode
-from typing import Optional
+
 import httpx
 
 from backend.config import settings
@@ -25,7 +25,7 @@ class OAuthService:
     # Telegram OAuth (Login Widget)
     TELEGRAM_AUTH_URL = "https://oauth.telegram.org/auth"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._state_store: dict[str, str] = {}  # In production, use Redis
 
     def generate_state(self) -> str:
@@ -36,7 +36,7 @@ class OAuthService:
         """Store state with provider (in production, use Redis with TTL)."""
         self._state_store[state] = provider
 
-    def verify_state(self, state: str) -> Optional[str]:
+    def verify_state(self, state: str) -> str | None:
         """Verify and consume state, return provider if valid."""
         return self._state_store.pop(state, None)
 
@@ -55,7 +55,7 @@ class OAuthService:
         }
         return f"{self.GITHUB_AUTH_URL}?{urlencode(params)}"
 
-    async def get_github_token(self, code: str) -> Optional[dict]:
+    async def get_github_token(self, code: str) -> dict | None:
         """Exchange GitHub authorization code for access token."""
         if not settings.github_client_id or not settings.github_client_secret:
             return None
@@ -73,9 +73,10 @@ class OAuthService:
             )
             if response.status_code != 200:
                 return None
-            return response.json()
+            data: dict = response.json()
+            return data
 
-    async def get_github_user(self, access_token: str) -> Optional[dict]:
+    async def get_github_user(self, access_token: str) -> dict | None:
         """Get GitHub user info."""
         async with httpx.AsyncClient() as client:
             # Get user info
@@ -126,7 +127,7 @@ class OAuthService:
         }
         return f"{self.GOOGLE_AUTH_URL}?{urlencode(params)}"
 
-    async def get_google_token(self, code: str) -> Optional[dict]:
+    async def get_google_token(self, code: str) -> dict | None:
         """Exchange Google authorization code for access token."""
         if not settings.google_client_id or not settings.google_client_secret:
             return None
@@ -145,9 +146,10 @@ class OAuthService:
             )
             if response.status_code != 200:
                 return None
-            return response.json()
+            data: dict = response.json()
+            return data
 
-    async def get_google_user(self, access_token: str) -> Optional[dict]:
+    async def get_google_user(self, access_token: str) -> dict | None:
         """Get Google user info."""
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -183,9 +185,9 @@ class OAuthService:
         }
         return f"{self.TELEGRAM_AUTH_URL}?{urlencode(params)}"
 
-    async def verify_telegram_auth(self, auth_data: dict) -> Optional[dict]:
+    async def verify_telegram_auth(self, auth_data: dict) -> dict | None:
         """Verify Telegram Login Widget authentication data.
-        
+
         See: https://core.telegram.org/widgets/login
         """
         if not settings.telegram_bot_token:
@@ -194,7 +196,7 @@ class OAuthService:
         # Verify hash (simplified - in production use proper verification)
         # The auth_data should contain: id, first_name, last_name, username, photo_url, auth_date, hash
         # Hash verification requires the bot token
-        
+
         # For now, return basic user info
         return {
             "provider_user_id": str(auth_data.get("id")),
@@ -215,7 +217,7 @@ class OAuthService:
         else:
             raise ValueError(f"Unknown OAuth provider: {provider}")
 
-    async def get_user_info(self, provider: str, code: str) -> Optional[dict]:
+    async def get_user_info(self, provider: str, code: str) -> dict | None:
         """Get user info from OAuth provider."""
         if provider == OAuthProvider.GITHUB:
             token_data = await self.get_github_token(code)

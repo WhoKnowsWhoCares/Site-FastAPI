@@ -1,6 +1,6 @@
 """Tests for models."""
-from backend.models.user import User, OAuthAccount
-from backend.models.content import SectionType, ContentType, PageContent, Project, Media
+from backend.models.content import ContentType, Media, PageContent, Project, SectionType
+from backend.models.user import OAuthAccount, User
 
 
 def test_user_model_fields():

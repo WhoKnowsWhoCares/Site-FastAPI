@@ -1,20 +1,20 @@
 """Admin endpoints: POST/PUT/DELETE /api/v1/admin/content."""
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.deps import get_current_admin, get_db
-from backend.models.content import SectionType, ContentType
+from backend.models.content import SectionType
+from backend.models.user import User
 from backend.schemas.content import (
     ContentCreate,
-    ContentUpdate,
     ContentRead,
+    ContentUpdate,
     ProjectCreate,
-    ProjectUpdate,
     ProjectRead,
+    ProjectUpdate,
 )
 from backend.services.content_service import ContentService
-
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -22,9 +22,9 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 @router.post("/content", response_model=ContentRead)
 async def create_content(
     content_data: ContentCreate,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> ContentRead:
     """Create a new content block (admin only)."""
     service = ContentService(db)
     content = await service.create_content(content_data)
@@ -35,9 +35,9 @@ async def create_content(
 async def update_content(
     content_id: int,
     content_data: ContentUpdate,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> ContentRead:
     """Update a content block (admin only)."""
     service = ContentService(db)
     content = await service.update_content(content_id, content_data)
@@ -49,9 +49,9 @@ async def update_content(
 @router.delete("/content/{content_id}")
 async def delete_content(
     content_id: int,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict:
     """Delete a content block (admin only)."""
     service = ContentService(db)
     deleted = await service.delete_content(content_id)
@@ -63,9 +63,9 @@ async def delete_content(
 @router.post("/project", response_model=ProjectRead)
 async def create_project(
     project_data: ProjectCreate,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> ProjectRead:
     """Create a new project (admin only)."""
     service = ContentService(db)
     project = await service.create_project(project_data)
@@ -76,9 +76,9 @@ async def create_project(
 async def update_project(
     project_id: int,
     project_data: ProjectUpdate,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> ProjectRead:
     """Update a project (admin only)."""
     service = ContentService(db)
     project = await service.update_project(project_id, project_data)
@@ -90,9 +90,9 @@ async def update_project(
 @router.delete("/project/{project_id}")
 async def delete_project(
     project_id: int,
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict:
     """Delete a project (admin only)."""
     service = ContentService(db)
     deleted = await service.delete_project(project_id)
@@ -106,16 +106,17 @@ async def list_all_content(
     section: SectionType = Query(default=None),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict:
     """List all content blocks (admin only)."""
     service = ContentService(db)
-    
+
     if section:
         items = await service.get_content_by_section(section, published_only=False)
     else:
         from sqlalchemy import select
+
         from backend.models.content import PageContent
         query = select(PageContent)
         result = await db.execute(query)
@@ -125,7 +126,7 @@ async def list_all_content(
     start = (page - 1) * page_size
     end = start + page_size
     paginated_items = items[start:end]
-    
+
     return {
         "items": [ContentRead.model_validate(i).model_dump() for i in paginated_items],
         "total": total,
@@ -140,16 +141,17 @@ async def list_all_projects(
     section: SectionType = Query(default=None),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict:
     """List all projects (admin only)."""
     service = ContentService(db)
-    
+
     if section:
         items = await service.get_projects_by_section(section, published_only=False)
     else:
         from sqlalchemy import select
+
         from backend.models.content import Project
         query = select(Project)
         result = await db.execute(query)
@@ -159,7 +161,7 @@ async def list_all_projects(
     start = (page - 1) * page_size
     end = start + page_size
     paginated_items = items[start:end]
-    
+
     return {
         "items": [ProjectRead.model_validate(i).model_dump() for i in paginated_items],
         "total": total,
@@ -178,9 +180,9 @@ class ContentOrder(BaseModel):
 async def reorder_content(
     section: SectionType = Body(...),
     content_orders: list[ContentOrder] = Body(...),
-    admin: dict = Depends(get_current_admin),
+    admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict:
     """Reorder content blocks in a section (admin only)."""
     orders = [(o.content_id, o.order) for o in content_orders]
     service = ContentService(db)

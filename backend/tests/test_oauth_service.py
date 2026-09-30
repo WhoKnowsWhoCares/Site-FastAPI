@@ -1,6 +1,5 @@
 """Integration tests for OAuth service methods."""
 import pytest
-from httpx import AsyncClient
 
 from backend.services.oauth_service import OAuthService
 

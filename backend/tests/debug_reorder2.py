@@ -1,8 +1,11 @@
 """Quick debug for reorder endpoint."""
 import asyncio
+
 from fastapi import FastAPI
-from backend.api.router import api_router
 from httpx import ASGITransport, AsyncClient
+
+from backend.api.router import api_router
+
 
 async def main():
     app = FastAPI()

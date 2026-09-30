@@ -1,13 +1,12 @@
 """Tests for security utilities."""
-import pytest
-from datetime import timedelta
+from datetime import UTC, timedelta
 
 from backend.utils.security import (
-    hash_password,
-    verify_password,
     create_access_token,
     decode_token,
     get_token_expiry,
+    hash_password,
+    verify_password,
 )
 
 
@@ -59,11 +58,11 @@ def test_create_token_default_expiry():
         email="test@example.com",
     )
 
-    from datetime import datetime, timezone
+    from datetime import datetime
     expiry = get_token_expiry(token)
     assert expiry is not None
     # Default is ~30 minutes from now
-    delta = expiry - datetime.now(timezone.utc)
+    delta = expiry - datetime.now(UTC)
     assert timedelta(minutes=29) < delta < timedelta(minutes=31)
 
 
@@ -75,9 +74,9 @@ def test_create_token_custom_expiry():
         expires_delta=timedelta(hours=1),
     )
 
-    from datetime import datetime, timezone
+    from datetime import datetime
     expiry = get_token_expiry(token)
-    delta = expiry - datetime.now(timezone.utc)
+    delta = expiry - datetime.now(UTC)
     assert timedelta(minutes=59) < delta < timedelta(minutes=61)
 
 

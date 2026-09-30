@@ -2,7 +2,6 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.user import User, OAuthAccount
 from backend.schemas.auth import UserCreate
 from backend.services.auth_service import AuthService
 from backend.utils.security import hash_password, verify_password

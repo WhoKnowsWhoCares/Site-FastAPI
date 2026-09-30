@@ -2,16 +2,17 @@
 import os
 import sys
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # Add project root to path so we can import backend modules
 _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-# Import all models so Alembic can detect them
-from backend.models.base import Base  # noqa: E401
+# Import all models so Alembic can detect them (must come after sys.path setup)
+from backend.models.base import Base  # noqa: E402
 
 # this is the Alembic Config object
 config = context.config
@@ -24,7 +25,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Get database URL from settings
-from backend.config import settings
+from backend.config import settings  # noqa: E402
 
 database_url = settings.database_url
 # Alembic needs sync SQLite dialect, not aiosqlite

@@ -3,7 +3,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.content import SectionType, ContentType, PageContent, Project
+from backend.models.content import ContentType, PageContent, Project, SectionType
 
 
 @pytest.mark.asyncio

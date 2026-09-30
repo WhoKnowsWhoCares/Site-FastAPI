@@ -1,9 +1,10 @@
 """Database configuration with async SQLAlchemy and aiosqlite."""
+from collections.abc import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.config import settings
 from backend.models.base import Base
-
 
 # Convert sqlite:// to sqlite+aiosqlite:// for async
 database_url = settings.database_url
@@ -23,13 +24,13 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession]:
     """Dependency for getting async database session."""
     async with async_session_maker() as session:
         yield session
 
 
-async def get_async_session() -> AsyncSession:
+async def get_async_session() -> AsyncGenerator[AsyncSession]:
     """Alias for get_db (deprecated)."""
     async with async_session_maker() as session:
         yield session

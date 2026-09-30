@@ -1,18 +1,15 @@
 """Site-FastAPI application entry point."""
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 
-from backend.api.router import api_router
-from backend.config import settings
-from backend.database import engine, Base
-
+import backend.models.content  # noqa: F401
 
 # Import all models to ensure their metadata is registered
 import backend.models.user  # noqa: F401
-import backend.models.content  # noqa: F401
-
+from backend.api.router import api_router
+from backend.config import settings
+from backend.database import Base, engine
 
 app = FastAPI(
     title="Site-FastAPI",
@@ -34,20 +31,20 @@ app.include_router(api_router, prefix="/api")
 
 
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     """Create database tables on startup."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict:
     """Health check endpoint."""
     return {"status": "ok", "version": settings.version}
 
 
 @app.get("/")
-async def root():
+async def root() -> dict:
     """Root endpoint - serves the main page."""
     return {
         "message": "Welcome to Site-FastAPI!",

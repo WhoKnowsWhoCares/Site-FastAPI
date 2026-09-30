@@ -1,11 +1,11 @@
 """Content management schemas."""
 from datetime import datetime
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
+
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
-class SectionType(str, Enum):
+class SectionType(StrEnum):
     """Section types for content organization."""
 
     ABOUTME = "aboutme"
@@ -14,7 +14,7 @@ class SectionType(str, Enum):
     SDART = "sdart"
 
 
-class ContentType(str, Enum):
+class ContentType(StrEnum):
     """Content block types."""
 
     HERO = "hero"
@@ -32,9 +32,9 @@ class ContentBase(BaseModel):
 
     section: SectionType
     content_type: ContentType
-    title: Optional[str] = Field(None, max_length=255)
-    body: Optional[str] = None
-    data: Optional[str] = None  # JSON string
+    title: str | None = Field(None, max_length=255)
+    body: str | None = None
+    data: str | None = None  # JSON string
     order: int = 0
     is_published: bool = True
 
@@ -48,12 +48,12 @@ class ContentCreate(ContentBase):
 class ContentUpdate(BaseModel):
     """Content update schema."""
 
-    content_type: Optional[ContentType] = None
-    title: Optional[str] = Field(None, max_length=255)
-    body: Optional[str] = None
-    data: Optional[str] = None
-    order: Optional[int] = None
-    is_published: Optional[bool] = None
+    content_type: ContentType | None = None
+    title: str | None = Field(None, max_length=255)
+    body: str | None = None
+    data: str | None = None
+    order: int | None = None
+    is_published: bool | None = None
 
 
 class ContentRead(ContentBase):
@@ -82,12 +82,12 @@ class ProjectBase(BaseModel):
     section: SectionType
     title: str = Field(..., min_length=1, max_length=255)
     slug: str = Field(..., min_length=1, max_length=255)
-    description: Optional[str] = None
-    content: Optional[str] = None
-    thumbnail_url: Optional[HttpUrl] = None
-    project_url: Optional[HttpUrl] = None
-    github_url: Optional[HttpUrl] = None
-    technologies: Optional[str] = None  # JSON array
+    description: str | None = None
+    content: str | None = None
+    thumbnail_url: HttpUrl | None = None
+    project_url: HttpUrl | None = None
+    github_url: HttpUrl | None = None
+    technologies: str | None = None  # JSON array
     order: int = 0
     is_published: bool = True
 
@@ -101,17 +101,17 @@ class ProjectCreate(ProjectBase):
 class ProjectUpdate(BaseModel):
     """Project update schema."""
 
-    section: Optional[SectionType] = None
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
-    slug: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = None
-    content: Optional[str] = None
-    thumbnail_url: Optional[HttpUrl] = None
-    project_url: Optional[HttpUrl] = None
-    github_url: Optional[HttpUrl] = None
-    technologies: Optional[str] = None
-    order: Optional[int] = None
-    is_published: Optional[bool] = None
+    section: SectionType | None = None
+    title: str | None = Field(None, min_length=1, max_length=255)
+    slug: str | None = Field(None, min_length=1, max_length=255)
+    description: str | None = None
+    content: str | None = None
+    thumbnail_url: HttpUrl | None = None
+    project_url: HttpUrl | None = None
+    github_url: HttpUrl | None = None
+    technologies: str | None = None
+    order: int | None = None
+    is_published: bool | None = None
 
 
 class ProjectRead(ProjectBase):
@@ -132,8 +132,8 @@ class MediaBase(BaseModel):
     content_type: str
     size: int
     path: str
-    url: Optional[HttpUrl] = None
-    section: Optional[SectionType] = None
+    url: HttpUrl | None = None
+    section: SectionType | None = None
 
 
 class MediaRead(MediaBase):

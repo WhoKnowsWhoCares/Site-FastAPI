@@ -1,17 +1,15 @@
 """Authentication service: JWT, password hashing, user management."""
-from datetime import timedelta
-from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from backend.models.user import User, OAuthAccount
-from backend.schemas.auth import UserCreate, UserUpdate, UserRead, TokenData
+from backend.models.user import OAuthAccount, User
+from backend.schemas.auth import TokenData, UserCreate, UserUpdate
 from backend.utils.security import (
-    hash_password,
-    verify_password,
     create_access_token,
     decode_token,
+    hash_password,
+    verify_password,
 )
 
 
@@ -21,21 +19,21 @@ class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
+    async def get_user_by_id(self, user_id: int) -> User | None:
         """Get user by ID."""
         result = await self.db.execute(
             select(User).where(User.id == user_id)
         )
         return result.scalar_one_or_none()
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         result = await self.db.execute(
             select(User).where(User.email == email)
         )
         return result.scalar_one_or_none()
 
-    async def get_user_by_oauth(self, provider: str, provider_user_id: str) -> Optional[User]:
+    async def get_user_by_oauth(self, provider: str, provider_user_id: str) -> User | None:
         """Get user by OAuth provider and provider user ID."""
         result = await self.db.execute(
             select(User)
@@ -64,14 +62,14 @@ class AuthService:
 
     async def create_oauth_user(
         self,
-        email: str,
+        email: str | None,
         name: str,
         provider: str,
         provider_user_id: str,
-        avatar_url: Optional[str] = None,
-        access_token: Optional[str] = None,
-        refresh_token: Optional[str] = None,
-        expires_at: Optional[int] = None,
+        avatar_url: str | None = None,
+        access_token: str | None = None,
+        refresh_token: str | None = None,
+        expires_at: int | None = None,
     ) -> User:
         """Create a new user from OAuth."""
         user = User(
@@ -101,9 +99,9 @@ class AuthService:
         user: User,
         provider: str,
         provider_user_id: str,
-        access_token: Optional[str] = None,
-        refresh_token: Optional[str] = None,
-        expires_at: Optional[int] = None,
+        access_token: str | None = None,
+        refresh_token: str | None = None,
+        expires_at: int | None = None,
     ) -> OAuthAccount:
         """Link an OAuth account to an existing user."""
         oauth_account = OAuthAccount(
@@ -141,7 +139,7 @@ class AuthService:
         await self.db.refresh(user)
         return user
 
-    async def authenticate(self, email: str, password: str) -> Optional[User]:
+    async def authenticate(self, email: str, password: str) -> User | None:
         """Authenticate user with email and password."""
         user = await self.get_user_by_email(email)
         if not user:
@@ -162,7 +160,7 @@ class AuthService:
             is_admin=user.is_admin,
         )
 
-    def decode_token(self, token: str) -> Optional[TokenData]:
+    def decode_token(self, token: str) -> TokenData | None:
         """Decode token and return token data."""
         payload = decode_token(token)
         if not payload:
@@ -175,7 +173,7 @@ class AuthService:
             exp=payload.get("exp", 0),
         )
 
-    async def get_current_user(self, token: str) -> Optional[User]:
+    async def get_current_user(self, token: str) -> User | None:
         """Get current user from token."""
         token_data = self.decode_token(token)
         if not token_data:

@@ -2,19 +2,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.api.deps import get_provider, get_current_user, get_auth_service, get_oauth_service
+from backend.api.deps import get_auth_service, get_current_user, get_oauth_service, get_provider
 from backend.database import get_db
+from backend.models.user import User
 from backend.schemas.auth import (
-    Token,
-    OAuthUrlResponse,
-    OAuthCallback,
     AuthMessage,
+    OAuthCallback,
+    OAuthUrlResponse,
+    Token,
     UserRead,
 )
 from backend.schemas.content import SectionType
 from backend.services.auth_service import AuthService
 from backend.services.oauth_service import OAuthService
-
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 async def get_oauth_url(
     provider: str,
     oauth_service: OAuthService = Depends(get_oauth_service),
-):
+) -> OAuthUrlResponse:
     """Get OAuth authorization URL for a provider."""
     provider = await get_provider(provider)
     state = oauth_service.generate_state()
@@ -40,7 +40,7 @@ async def oauth_callback(
     db: AsyncSession = Depends(get_db),
     auth_service: AuthService = Depends(get_auth_service),
     oauth_service: OAuthService = Depends(get_oauth_service),
-):
+) -> Token:
     """Handle OAuth callback from provider."""
     if callback_data.error:
         raise HTTPException(
@@ -98,7 +98,7 @@ async def telegram_callback(
     db: AsyncSession = Depends(get_db),
     auth_service: AuthService = Depends(get_auth_service),
     oauth_service: OAuthService = Depends(get_oauth_service),
-):
+) -> Token:
     """Handle Telegram Login Widget callback."""
     if callback_data.error:
         raise HTTPException(
@@ -149,7 +149,7 @@ async def login(
     callback_data: OAuthCallback,  # Using email as code field for simplicity
     db: AsyncSession = Depends(get_db),
     auth_service: AuthService = Depends(get_auth_service),
-):
+) -> Token:
     """Login with email and password (using OAuthCallback structure)."""
     # This is a placeholder - in production use proper login form
     raise HTTPException(
@@ -160,8 +160,8 @@ async def login(
 
 @router.get("/me")
 async def get_me(
-    current_user: dict = Depends(get_current_user),
-):
+    current_user: User = Depends(get_current_user),
+) -> UserRead:
     """Get current user info."""
     return UserRead(
         id=current_user.id,
@@ -178,12 +178,12 @@ async def get_me(
 @router.post("/logout")
 async def logout(
     message: AuthMessage = AuthMessage(message="Logged out successfully"),
-):
+) -> AuthMessage:
     """Logout endpoint (stateless - token invalidation handled client-side)."""
     return message
 
 
 @router.get("/sections")
-async def get_available_sections():
+async def get_available_sections() -> list[str]:
     """Get available content sections."""
     return [s.value for s in SectionType]

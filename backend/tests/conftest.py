@@ -1,7 +1,7 @@
 """Test conftest with pytest fixtures."""
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
@@ -14,9 +14,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from backend.database import Base, get_db
-from backend.models.user import User, OAuthAccount
-from backend.models.content import PageContent, Project, Media
-
+from backend.models.content import PageContent, Project
+from backend.models.user import User
 
 # Use a temp file for test database
 TEST_DB_PATH = Path(tempfile.mkdtemp()) / "test_site.db"
@@ -40,7 +39,7 @@ def setup_test_db():
 async def async_engine(setup_test_db):
     """Create a single shared async engine for the entire test session."""
     global _engine, _session_maker
-    
+
     _engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,
@@ -51,13 +50,13 @@ async def async_engine(setup_test_db):
         class_=AsyncSession,
         expire_on_commit=False,
     )
-    
+
     # Create tables once for the entire session
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield _engine
-    
+
     # Cleanup
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -82,6 +81,7 @@ async def test_db(async_engine):
 def app():
     """Create FastAPI test app."""
     from fastapi import FastAPI
+
     from backend.api.router import api_router
 
     application = FastAPI()
@@ -138,7 +138,7 @@ async def admin_token(test_user):
 @pytest_asyncio.fixture
 async def test_content(test_db):
     """Create test content blocks."""
-    from backend.models.content import SectionType, ContentType
+    from backend.models.content import ContentType, SectionType
 
     contents = []
     for i, section in enumerate([SectionType.ABOUTME, SectionType.IHOME]):

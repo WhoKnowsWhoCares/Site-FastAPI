@@ -1,7 +1,7 @@
 """Tests for database configuration."""
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from backend.database import engine, Base, async_session_maker
+from backend.database import Base, async_session_maker, engine
 
 
 def test_engine_exists():

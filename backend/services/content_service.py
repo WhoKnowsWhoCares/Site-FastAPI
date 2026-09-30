@@ -1,27 +1,24 @@
 """Content service for managing page content, projects, and media."""
-from typing import Optional
-from sqlalchemy import select, func, or_
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from backend.models.content import (
-    SectionType,
-    ContentType,
+    Media,
     PageContent,
     Project,
-    Media,
-)
-from backend.schemas.content import (
-    ContentCreate,
-    ContentUpdate,
-    ContentRead,
-    ContentList,
-    ProjectCreate,
-    ProjectUpdate,
-    ProjectRead,
-    MediaRead,
+    SectionType,
 )
 from backend.schemas.common import PaginationParams
+from backend.schemas.content import (
+    ContentCreate,
+    ContentRead,
+    ContentUpdate,
+    MediaRead,
+    ProjectCreate,
+    ProjectRead,
+    ProjectUpdate,
+)
 
 
 class ContentService:
@@ -39,12 +36,12 @@ class ContentService:
         """Get all content blocks for a section."""
         query = select(PageContent).where(PageContent.section == section)
         if published_only:
-            query = query.where(PageContent.is_published == True)
+            query = query.where(PageContent.is_published)
         query = query.order_by(PageContent.order)
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
-    async def get_content_by_id(self, content_id: int) -> Optional[PageContent]:
+    async def get_content_by_id(self, content_id: int) -> PageContent | None:
         """Get content by ID."""
         result = await self.db.execute(
             select(PageContent).where(PageContent.id == content_id)
@@ -63,7 +60,7 @@ class ContentService:
         self,
         content_id: int,
         content_data: ContentUpdate,
-    ) -> Optional[PageContent]:
+    ) -> PageContent | None:
         """Update content block."""
         content = await self.get_content_by_id(content_id)
         if not content:
@@ -89,7 +86,7 @@ class ContentService:
 
     async def reorder_content(self, section: SectionType, content_orders: list[tuple[int, int]]) -> bool:
         """Reorder content blocks in a section.
-        
+
         Args:
             section: Section to reorder
             content_orders: List of (content_id, new_order) tuples
@@ -98,7 +95,7 @@ class ContentService:
             content = await self.get_content_by_id(content_id)
             if content and content.section == section:
                 content.order = new_order
-        
+
         await self.db.commit()
         return True
 
@@ -111,19 +108,19 @@ class ContentService:
         """Get all projects for a section."""
         query = select(Project).where(Project.section == section)
         if published_only:
-            query = query.where(Project.is_published == True)
+            query = query.where(Project.is_published)
         query = query.order_by(Project.order)
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
-    async def get_project_by_id(self, project_id: int) -> Optional[Project]:
+    async def get_project_by_id(self, project_id: int) -> Project | None:
         """Get project by ID."""
         result = await self.db.execute(
             select(Project).where(Project.id == project_id)
         )
         return result.scalar_one_or_none()
 
-    async def get_project_by_slug(self, slug: str) -> Optional[Project]:
+    async def get_project_by_slug(self, slug: str) -> Project | None:
         """Get project by slug."""
         result = await self.db.execute(
             select(Project).where(Project.slug == slug)
@@ -142,7 +139,7 @@ class ContentService:
         self,
         project_id: int,
         project_data: ProjectUpdate,
-    ) -> Optional[Project]:
+    ) -> Project | None:
         """Update project."""
         project = await self.get_project_by_id(project_id)
         if not project:
@@ -167,7 +164,7 @@ class ContentService:
         return True
 
     # Media methods
-    async def get_media_by_id(self, media_id: int) -> Optional[Media]:
+    async def get_media_by_id(self, media_id: int) -> Media | None:
         """Get media by ID."""
         result = await self.db.execute(
             select(Media).where(Media.id == media_id)

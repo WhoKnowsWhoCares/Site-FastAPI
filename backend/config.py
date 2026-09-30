@@ -1,5 +1,5 @@
+
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -17,11 +17,11 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./site.db"
 
     # OAuth
-    github_client_id: Optional[str] = None
-    github_client_secret: Optional[str] = None
-    google_client_id: Optional[str] = None
-    google_client_secret: Optional[str] = None
-    telegram_bot_token: Optional[str] = None  # For Telegram Login Widget or Bot API
+    github_client_id: str | None = None
+    github_client_secret: str | None = None
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    telegram_bot_token: str | None = None  # For Telegram Login Widget or Bot API
 
     # Frontend
     frontend_url: str = "http://localhost:3000"

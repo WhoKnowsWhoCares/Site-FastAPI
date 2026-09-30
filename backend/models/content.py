@@ -1,12 +1,13 @@
 """Content models for pages, projects, and media."""
-from enum import Enum as PyEnum
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from enum import StrEnum
+
+from sqlalchemy import Enum, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base, TimestampMixin
 
 
-class SectionType(str, PyEnum):
+class SectionType(StrEnum):
     """Section types for content organization."""
 
     ABOUTME = "aboutme"
@@ -15,7 +16,7 @@ class SectionType(str, PyEnum):
     SDART = "sdart"
 
 
-class ContentType(str, PyEnum):
+class ContentType(StrEnum):
     """Content block types."""
 
     HERO = "hero"

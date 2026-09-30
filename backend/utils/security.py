@@ -1,8 +1,8 @@
 """Security utilities: password hashing and JWT token handling."""
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-from jose import jwt, JWTError
+from datetime import UTC, datetime, timedelta
+
 import bcrypt as bcrypt_lib
+from jose import JWTError, jwt
 from pydantic import SecretStr
 
 from backend.config import settings
@@ -27,13 +27,13 @@ def create_access_token(
     subject: str,
     email: str,
     is_admin: bool = False,
-    expires_delta: Optional[timedelta] = None,
+    expires_delta: timedelta | None = None,
 ) -> str:
     """Create a JWT access token."""
     expire = (
-        datetime.now(timezone.utc) + expires_delta
+        datetime.now(UTC) + expires_delta
         if expires_delta
-        else datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+        else datetime.now(UTC) + timedelta(minutes=settings.access_token_expire_minutes)
     )
 
     to_encode = {
@@ -41,7 +41,7 @@ def create_access_token(
         "email": email,
         "is_admin": is_admin,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
     }
 
     secret = (
@@ -50,10 +50,10 @@ def create_access_token(
         else settings.secret_key
     )
 
-    return jwt.encode(to_encode, secret, algorithm=settings.algorithm)
+    return str(jwt.encode(to_encode, secret, algorithm=settings.algorithm))
 
 
-def decode_token(token: str) -> Optional[dict]:
+def decode_token(token: str) -> dict | None:
     """Decode and validate a JWT token."""
     try:
         secret = (
@@ -61,14 +61,15 @@ def decode_token(token: str) -> Optional[dict]:
             if isinstance(settings.secret_key, SecretStr)
             else settings.secret_key
         )
-        return jwt.decode(token, secret, algorithms=[settings.algorithm])
+        decoded: dict = jwt.decode(token, secret, algorithms=[settings.algorithm])
+        return decoded
     except JWTError:
         return None
 
 
-def get_token_expiry(token: str) -> Optional[datetime]:
+def get_token_expiry(token: str) -> datetime | None:
     """Get token expiry datetime."""
     payload = decode_token(token)
     if payload and "exp" in payload:
-        return datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        return datetime.fromtimestamp(payload["exp"], tz=UTC)
     return None
