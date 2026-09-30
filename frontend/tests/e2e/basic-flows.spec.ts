@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Public Pages', () => {
   test('home page loads successfully', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Site-FastAPI/);
+    await expect(page).toHaveTitle(/Alexander/);
     await expect(page.locator('main')).toBeVisible();
   });
 
@@ -48,7 +48,7 @@ test.describe('Navigation', () => {
 test.describe('ControlPanel Access', () => {
   test('controlpanel login page is accessible', async ({ page }) => {
     await page.goto('/controlpanel/login');
-    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('main').first()).toBeVisible();
   });
 
   test('controlpanel dashboard redirects to login without auth', async ({ page }) => {
