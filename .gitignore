@@ -31,6 +31,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.production
 
 # uv
 uv.lock
@@ -86,6 +87,7 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+data/
 
 # Secrets (should never be committed)
 *.pem
