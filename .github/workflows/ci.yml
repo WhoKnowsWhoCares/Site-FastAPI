@@ -120,7 +120,6 @@ jobs:
         run: uv sync
 
       - name: Verify backend imports
-        working-directory: backend
         run: python -c "import backend.main; print('Backend OK')"
 
       - name: Set up Node.js
