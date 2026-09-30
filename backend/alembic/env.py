@@ -27,8 +27,14 @@ target_metadata = Base.metadata
 # Get database URL from settings
 from backend.config import settings  # noqa: E402
 
-database_url = settings.database_url
-# Alembic needs sync SQLite dialect, not aiosqlite
+_migrations_url = settings.database_url
+# Alembic migrations run synchronously: use the sync drivers
+if _migrations_url.startswith("sqlite+aiosqlite://"):
+    _migrations_url = _migrations_url.replace("sqlite+aiosqlite://", "sqlite://", 1)
+elif _migrations_url.startswith("postgresql+asyncpg://"):
+    _migrations_url = _migrations_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+# Override sqlalchemy.url from alembic.ini with the runtime DATABASE_URL
+config.set_main_option("sqlalchemy.url", _migrations_url)
 
 
 def run_migrations_offline() -> None:

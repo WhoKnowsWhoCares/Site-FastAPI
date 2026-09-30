@@ -38,7 +38,7 @@ uv run ruff check .
 ### Docker
 
 ```bash
-# Полная сборка (backend + frontend + nginx)
+# Полная сборка (backend + frontend + PostgreSQL)
 docker compose -f docker/docker-compose.yml up -d --build
 
 # Просмотр логов
@@ -47,6 +47,11 @@ docker compose -f docker/docker-compose.yml logs -f
 # Остановка
 docker compose -f docker/docker-compose.yml down
 ```
+
+Reverse proxy (nginx) работает на хосте, вне docker-compose: backend публикуется
+на `127.0.0.1:8000`, frontend — на `127.0.0.1:3000`. Пример конфига:
+`docker/nginx.host.conf.example`. При старте контейнера backend автоматически
+выполняет `alembic upgrade head` против PostgreSQL.
 
 ## Переменные окружения
 
@@ -75,7 +80,7 @@ Site-FastAPI/
 │   └── tests/           # pytest тесты (103 теста, 86% coverage)
 ├── frontend/            # Next.js 14+ App Router, TypeScript
 │   └── src/app/        # Роуты: /, /aboutme, /ihome, /trade4me, /sdart, /controlpanel
-├── docker/              # Dockerfiles + nginx.conf + docker-compose.yml
+├── docker/              # Dockerfiles + docker-compose.yml + nginx.host.conf.example
 ├── docs/                # Документация
 │   ├── ARCHITECTURE.md  # Архитектура и диаграммы
 │   ├── DEPLOY.md        # Деплой на VPS
@@ -99,7 +104,7 @@ npm run test:e2e
 
 ## Деплой
 
-См. `docs/DEPLOY.md` — настройка VPS, Docker Compose, nginx, SSL (Let's Encrypt), резервное копирование.
+См. `docs/DEPLOY.md` — настройка VPS, Docker Compose (backend + frontend + PostgreSQL), хостового nginx (reverse proxy), SSL (Let's Encrypt), резервное копирование.
 
 ## Лицензия
 

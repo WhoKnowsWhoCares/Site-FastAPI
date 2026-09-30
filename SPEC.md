@@ -37,9 +37,9 @@
 - **Build Output:** standalone для Docker
 
 ### Infrastructure
-- **Database:** SQLite (dev) → PostgreSQL (prod, позже)
+- **Database:** SQLite (dev) → PostgreSQL 17 (prod, в docker-compose)
 - **Container:** Docker + Docker Compose
-- **Reverse Proxy:** nginx (в контейнере)
+- **Reverse Proxy:** nginx на хосте (вне docker-compose)
 - **Deploy:** VPS (Docker Compose)
 
 ## Commands
@@ -159,7 +159,8 @@ Site-FastAPI/
 ├── docker/
 │   ├── Dockerfile.backend
 │   ├── Dockerfile.frontend
-│   ├── nginx.conf
+│   ├── entrypoint.backend.sh
+│   ├── nginx.host.conf.example
 │   └── docker-compose.yml
 ├── docs/
 │   ├── ARCHITECTURE.md
@@ -258,12 +259,14 @@ async function fetchUser(id: number): Promise<User> {
    - SSR работает для публичных страниц
 
 3. **Docker:**
-   - `docker compose up` поднимает backend:8000, frontend:3000, nginx:80
+   - `docker compose up` поднимает backend:8000, frontend:3000, db (PostgreSQL 17)
    - Health checks проходят для всех сервисов
+   - Reverse proxy (nginx) работает на хосте, вне compose; backend/frontend
+     публикуются на 127.0.0.1
 
 4. **Deploy:**
    - Собранные образы запускаются на VPS
-   - nginx проксирует /api → backend, /* → frontend
+   - Хостовой nginx проксирует /api → 127.0.0.1:8000 (backend), /* → 127.0.0.1:3000 (frontend)
 
 ## Open Questions
 

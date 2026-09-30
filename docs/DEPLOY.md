@@ -6,6 +6,18 @@
 - 2 vCPU, 2GB RAM минимум
 - 20GB SSD disk
 - Docker 24+ и Docker Compose v2.20+
+- nginx на хосте (reverse proxy, ВНЕ docker-compose)
+
+## Архитектура
+
+```
+Internet → host nginx :80/:443 → 127.0.0.1:8000 (backend, docker)
+                               → 127.0.0.1:3000 (frontend, docker)
+                               → db (postgres, только внутренняя сеть, без внешних портов)
+```
+
+Reverse proxy работает на хосте, а не в docker-compose. Пример конфига:
+`docker/nginx.host.conf.example`.
 
 ## Шаг 1: Подготовка сервера
 
@@ -21,9 +33,13 @@ sudo usermod -aG docker deploy
 
 # Перелогиниться или: newgrp docker
 
+# Установить nginx на хост
+sudo apt install nginx -y
+
 # Проверить установку
 docker --version
 docker compose version
+nginx -v
 ```
 
 ## Шаг 2: Настройка проекта
@@ -35,89 +51,73 @@ git clone <repo-url> Site-FastAPI
 cd Site-FastAPI
 
 # Копируем продакшен конфиг
-cp .env.production.example .env
+cp .env.production.example docker/.env.production
 
-# Редактируем .env — меняем секретные значения:
+# Если меняете POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_DB — продублируйте их
+# в docker/.env: compose-интерполяция ${POSTGRES_*} читает именно docker/.env
+cp docker/.env.production docker/.env
+
+# Редактируем docker/.env.production — меняем секретные значения:
+# - POSTGRES_PASSWORD (сильный пароль БД)
 # - SECRET_KEY (генерируем: openssl rand -hex 32)
-# - DATABASE_URL → postgresql+asyncpg://user:pass@db:5432/site
 # - GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 # - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 # - TELEGRAM_BOT_TOKEN
 # - FRONTEND_URL → https://yourdomain.com
 ```
 
-## Шаг 3: Настройка Docker Compose
+Схема БД создаётся автоматически: entrypoint контейнера backend выполняет
+`alembic upgrade head` против PostgreSQL перед запуском uvicorn. Ручная
+инициализация не требуется.
+
+## Шаг 3: Docker Compose
 
 Файл `docker/docker-compose.yml` содержит три сервиса:
 
 | Сервис | Порт | Назначение |
 |---|---|---|
-| `backend` | :8000 (внутри контейнера) | FastAPI API |
-| `frontend` | :3000 (внутри контейнера) | Next.js App |
-| `nginx` | :80, :443 | Reverse proxy + SSL |
+| `backend` | 127.0.0.1:8000 | FastAPI API |
+| `frontend` | 127.0.0.1:3000 | Next.js App |
+| `db` | только внутренняя сеть | PostgreSQL 17 |
 
-### PostgreSQL (опционально для продакшена)
+Порты backend/frontend публикуются только на 127.0.0.1 — их проксирует хостовой
+nginx. База данных не публикуется наружу вообще.
 
-Для продакшена рекомендую заменить SQLite на PostgreSQL:
+## Шаг 4: Настройка host nginx и SSL (Let's Encrypt)
 
-```yaml
-# Добавить в docker-compose.yml:
-services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: site
-      POSTGRES_USER: siteuser
-      POSTGRES_PASSWORD: <strong-password>
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U siteuser"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  pgdata:
-```
-
-И обновить `DATABASE_URL` в `.env`:
-```
-DATABASE_URL=postgresql+asyncpg://siteuser:<strong-password>@db:5432/site
-```
-
-## Шаг 4: Настройка Nginx и SSL (Let's Encrypt)
-
-### Установка Certbot
+### Конфигурация nginx
 
 ```bash
-sudo apt install certbot python3-certbot-nginx -y
+sudo cp docker/nginx.host.conf.example /etc/nginx/sites-available/site-fastapi
+sudo nano /etc/nginx/sites-available/site-fastapi   # указать server_name
+sudo ln -s /etc/nginx/sites-available/site-fastapi /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### Конфигурация Nginx
-
-Файл `docker/nginx.conf` уже настроен для проксирования:
-- `/api/` → backend:8000
-- `/` → frontend:3000
+Пример проксирует:
+- `/api/` → 127.0.0.1:8000 (backend)
+- `= /health` → 127.0.0.1:8000/health
+- `/` → 127.0.0.1:3000 (frontend)
 
 ### Получение SSL сертификата
 
 ```bash
-# Запустить без SSL сначала
-sudo docker compose -f docker/docker-compose.yml up -d --build
+sudo apt install certbot python3-certbot-nginx -y
 
-# Получить сертификат (nginx должен работать на порту 80)
+# Стек должен быть запущен, nginx отвечает на порту 80
+sudo docker compose -f docker/docker-compose.yml up -d --build
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
-# Certbot автоматически обновит nginx.conf и настроит редирект на HTTPS
+# Certbot автоматически обновит конфиг nginx и настроит редирект на HTTPS
 
 # Проверить автообновление
 sudo certbot renew --dry-run
 ```
 
-### Ручная настройка SSL в nginx.conf
+### Ручная настройка SSL в nginx
 
-Если certbot не сработал автоматически:
+Если certbot не сработал автоматически, добавьте в server-блок хостового nginx:
 
 ```nginx
 server {
@@ -132,7 +132,7 @@ server {
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
 
-    # ... остальные location блоки из nginx.conf
+    # ... те же location блоки, что в docker/nginx.host.conf.example
 }
 
 server {
@@ -155,7 +155,8 @@ sudo docker compose -f docker/docker-compose.yml ps
 sudo docker compose -f docker/docker-compose.yml logs -f
 
 # Проверить health checks
-curl -s http://localhost:80/health  # backend health
+curl -s http://127.0.0.1:8000/health   # backend напрямую
+curl -s http://localhost/health        # через host nginx
 ```
 
 ## Шаг 6: Настройка автозапуска
@@ -184,6 +185,17 @@ sudo systemctl enable site-fastapi
 sudo systemctl start site-fastapi
 ```
 
+## Миграции базы данных
+
+При старте контейнера backend автоматически выполняется `alembic upgrade head`.
+
+Запустить вручную (например, после git pull без пересборки):
+
+```bash
+sudo docker compose -f docker/docker-compose.yml exec backend \
+  alembic -c backend/alembic.ini upgrade head
+```
+
 ## Резервное копирование
 
 ### База данных
@@ -194,11 +206,9 @@ sudo systemctl start site-fastapi
 BACKUP_DIR="/opt/Site-FastAPI/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
-# SQLite бэкап
-cp /opt/Site-FastAPI/site.db "$BACKUP_DIR/site_$DATE.db"
-
-# Или PostgreSQL бэкап
-# docker compose exec db pg_dump -U siteuser site > "$BACKUP_DIR/site_$DATE.sql"
+# PostgreSQL бэкап
+docker compose -f /opt/Site-FastAPI/docker/docker-compose.yml exec -T db \
+  pg_dump -U siteuser site > "$BACKUP_DIR/site_$DATE.sql"
 
 # Удалить бэкапы старше 30 дней
 find "$BACKUP_DIR" -name "site_*" -mtime +30 -delete
@@ -235,17 +245,21 @@ sudo docker compose -f docker/docker-compose.yml up -d --build
 ```bash
 sudo docker compose -f docker/docker-compose.yml logs -f backend
 sudo docker compose -f docker/docker-compose.yml logs -f frontend
-sudo docker compose -f docker/docker-compose.yml logs -f nginx
+sudo docker compose -f docker/docker-compose.yml logs -f db
+sudo tail -f /var/log/nginx/error.log   # хостовой nginx
 ```
 
 ### Проверка здоровья
 
 ```bash
 # Backend health endpoint
-curl -s http://localhost:80/health | jq
+curl -s http://localhost:8000/health | jq
 
 # Frontend доступность
-curl -s -o /dev/null -w "%{http_code}" http://localhost/
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
+
+# Через host nginx
+curl -s http://localhost/health | jq
 
 # SSL сертификат (дней до истечения)
 echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2>/dev/null | \
@@ -257,11 +271,14 @@ echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2
 ### Backend не запускается
 
 ```bash
-# Проверить логи
+# Проверить логи (миграции alembic выполняются на старте — ошибки БД видны здесь)
 sudo docker compose logs backend
 
 # Проверить переменные окружения
 sudo docker compose exec backend env | grep DATABASE_URL
+
+# Проверить доступность БД
+sudo docker compose exec db pg_isready -U siteuser -d site
 
 # Пересобрать
 sudo docker compose -f docker/docker-compose.yml up -d --build --no-cache backend
@@ -276,17 +293,20 @@ sudo docker compose logs frontend
 # Проверить next.config.js — должен быть output: 'standalone'
 ```
 
-### Nginx 502 Bad Gateway
+### Host nginx 502 Bad Gateway
 
 ```bash
-# Проверить что backend и frontend запущены
-sudo docker ps
+# Проверить что backend и frontend запущены и здоровы
+sudo docker compose -f docker/docker-compose.yml ps
 
-# Проверить nginx конфиг
-sudo docker compose exec nginx nginx -t
+# Проверить что порты слушаются
+ss -tlnp | grep -E '8000|3000'
+
+# Проверить конфиг хостового nginx
+sudo nginx -t
 
 # Перезагрузить nginx
-sudo docker compose exec nginx nginx -s reload
+sudo systemctl reload nginx
 ```
 
 ### SSL проблемы

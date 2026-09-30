@@ -9,17 +9,27 @@ services:
       - path: .env.production
         required: false
     environment:
+<<<<<<< HEAD
       - DATABASE_URL=sqlite:////app/data/site.db
     volumes:
       - ../data:/app/data
     expose:
       - "8000"
+=======
+      # PostgreSQL inside the compose network; host nginx proxies to 127.0.0.1:8000
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-siteuser}:${POSTGRES_PASSWORD:-sitepass}@db:5432/${POSTGRES_DB:-site}
+    ports:
+      - "127.0.0.1:8000:8000"
+>>>>>>> 04b9b58 (feat(docker): replace compose nginx with host nginx, add PostgreSQL + alembic init)
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"]
       interval: 30s
       timeout: 5s
       start_period: 15s
       retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - site-net
 
@@ -32,8 +42,8 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=/api
-    expose:
-      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "--spider", "http://127.0.0.1:3000/"]
       interval: 30s
@@ -46,8 +56,32 @@ services:
     networks:
       - site-net
 
+<<<<<<< HEAD
 # volumes:
 #   backend-data:
+=======
+  db:
+    image: postgres:17-alpine
+    container_name: site-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-siteuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sitepass}
+      - POSTGRES_DB=${POSTGRES_DB:-site}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-siteuser} -d $${POSTGRES_DB:-site}"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    networks:
+      - site-net
+
+volumes:
+  pgdata:
+>>>>>>> 04b9b58 (feat(docker): replace compose nginx with host nginx, add PostgreSQL + alembic init)
 
 networks:
   site-net:

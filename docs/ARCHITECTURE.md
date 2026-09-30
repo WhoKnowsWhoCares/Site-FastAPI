@@ -4,9 +4,9 @@
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Browser   │────▶│    Nginx     │────▶│  Next.js     │
+│   Browser   │────▶│ host nginx   │────▶│  Next.js     │
 │  (Client)   │◀────│  :80 (SSL)   │◀────│  Frontend    │
-└─────────────┘     │              │     │  :3000       │
+└─────────────┘     │  (на хосте)  │     │  :3000       │
                     │  /api/ ────▶ │────▶│  FastAPI     │
                     │              │     │  Backend     │
                     └──────────────┘     │  :8000       │
@@ -17,6 +17,11 @@
                                          │  PostgreSQL  │
                                          └──────────────┘
 ```
+
+Reverse proxy — nginx на хосте ВНЕ docker-compose (пример:
+`docker/nginx.host.conf.example`). Docker-compose поднимает backend
+(127.0.0.1:8000), frontend (127.0.0.1:3000) и PostgreSQL 17 (только внутренняя
+сеть).
 
 ## Компоненты
 

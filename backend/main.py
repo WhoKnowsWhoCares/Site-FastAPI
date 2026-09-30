@@ -32,9 +32,14 @@ app.include_router(api_router, prefix="/api")
 
 @app.on_event("startup")
 async def startup() -> None:
-    """Create database tables on startup."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Create database tables for local sqlite dev only.
+
+    In production the schema is managed by Alembic (`alembic upgrade head`),
+    which runs as the container entrypoint before uvicorn starts.
+    """
+    if settings.database_url.startswith("sqlite://"):
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
 
 @app.get("/health")

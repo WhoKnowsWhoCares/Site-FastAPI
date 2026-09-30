@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from backend.config import settings
 from backend.models.base import Base
 
-# Convert sqlite:// to sqlite+aiosqlite:// for async
+# Convert sqlite:// to sqlite+aiosqlite:// and postgresql:// to postgresql+asyncpg:// for async
 database_url = settings.database_url
 if database_url.startswith("sqlite://"):
     database_url = database_url.replace("sqlite://", "sqlite+aiosqlite://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 engine = create_async_engine(
     database_url,
