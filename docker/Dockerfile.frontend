@@ -16,6 +16,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ ./
 
+# public/ may contain no tracked files; ensure the dir exists for COPY --from=builder
+RUN mkdir -p public
+
 # next.config.js sets output: 'standalone'
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
