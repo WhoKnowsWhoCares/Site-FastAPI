@@ -35,7 +35,6 @@ jobs:
         run: uv run ruff check .
 
       - name: Run type-check (mypy)
-        working-directory: backend
         run: uv run mypy backend/
 
       - name: Run tests with coverage
@@ -93,7 +92,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run E2E tests
         working-directory: frontend
