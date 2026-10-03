@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { NAV_ITEMS } from "./nav-items";
 import { OAuthLoginButtons } from "./oauth-login-buttons";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   const pathname = usePathname();
@@ -18,7 +19,8 @@ export function Header() {
           className="text-base font-semibold tracking-tight"
           onClick={() => setMenuOpen(false)}
         >
-          Alexander<span className="text-muted-foreground">.dev</span>
+          Alexander
+          <span className="font-mono text-muted-foreground">.dev</span>
         </Link>
 
         {/* Desktop nav */}
@@ -49,10 +51,14 @@ export function Header() {
           <div className="ml-3 border-l border-border pl-3">
             <OAuthLoginButtons />
           </div>
+          <div className="ml-2 border-l border-border pl-2">
+            <ThemeToggle />
+          </div>
         </nav>
 
         {/* Mobile: login + burger */}
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
           <OAuthLoginButtons />
           <button
             type="button"

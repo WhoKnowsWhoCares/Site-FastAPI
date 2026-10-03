@@ -98,3 +98,4 @@ data/
 *.local
 *.backup
 .cache/
+.ruff_cache/

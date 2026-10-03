@@ -1,9 +1,10 @@
 import { API_URL } from "@/lib/api";
 
 const SOCIAL_LINKS = [
-  { href: "https://github.com/", label: "GitHub" },
-  { href: "https://t.me/", label: "Telegram" },
-  { href: "mailto:example@example.com", label: "Email" },
+  { href: "https://github.com/WhoKnowsWhoCares", label: "GitHub" },
+  { href: "https://t.me/as_frantsev", label: "Telegram" },
+  { href: "https://linkedin.com/in/asfrantsev", label: "LinkedIn" },
+  { href: "mailto:as.frantsev@gmail.com", label: "Email" },
 ] as const;
 
 export function Footer() {

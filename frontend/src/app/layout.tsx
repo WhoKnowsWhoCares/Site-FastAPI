@@ -1,16 +1,43 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Sora, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 
+const sora = Sora({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "Alexander — Personal Site",
-    template: "%s — Alexander",
+    default: "Alexander Frantsev — Senior Data Scientist",
+    template: "%s — Alexander Frantsev",
   },
   description:
-    "Personal site: AboutMe, iHome smart home, Trade4Me trading bot and SD Art gallery.",
+    "Senior Data Scientist: ML products end-to-end, fintech & big tech. Smart home, trading bots and generated art as side projects.",
+  openGraph: {
+    title: "Alexander Frantsev — Senior Data Scientist",
+    description:
+      "ML products end-to-end: fintech, big tech, retail. Smart home, trading and SD art on the side.",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#111033" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f9fb" },
+  ],
 };
 
 export default function RootLayout({
@@ -20,12 +47,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col font-sans antialiased">
-        <Providers>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </Providers>
+      <body
+        className={`${sora.variable} ${jetbrainsMono.variable} flex min-h-screen flex-col font-sans antialiased`}
+      >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <Providers>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
