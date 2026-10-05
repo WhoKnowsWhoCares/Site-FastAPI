@@ -3,13 +3,28 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { NAV_ITEMS } from "./nav-items";
-import { OAuthLoginButtons } from "./oauth-login-buttons";
+import { ChevronDown, FolderGit2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TOP_NAV_ITEMS, PROJECT_NAV_ITEMS, isProjectPath } from "./nav-items";
+import { OAuthLoginDropdown } from "./oauth-login-dropdown";
 import { ThemeToggle } from "./theme-toggle";
+
+const linkClasses = (active: boolean, block = false) =>
+  `${block ? "block" : ""} rounded-md px-3 py-1.5 text-sm transition-colors ${
+    active
+      ? "bg-accent font-medium text-accent-foreground"
+      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+  }`;
 
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const projectsActive = isProjectPath(pathname);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -19,14 +34,14 @@ export function Header() {
           className="text-base font-semibold tracking-tight"
           onClick={() => setMenuOpen(false)}
         >
-          Alexander
-          <span className="font-mono text-muted-foreground">.dev</span>
+          Frants
+          <span className="font-mono text-muted-foreground">Tech</span>
         </Link>
 
         {/* Desktop nav */}
         <nav aria-label="Main" className="hidden md:flex md:items-center md:gap-1">
           <ul className="flex items-center gap-1">
-            {NAV_ITEMS.map((item) => {
+            {TOP_NAV_ITEMS.map((item) => {
               const active =
                 item.href === "/"
                   ? pathname === "/"
@@ -36,20 +51,38 @@ export function Header() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                      active
-                        ? "bg-accent font-medium text-accent-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    }`}
+                    className={linkClasses(active)}
                   >
                     {item.label}
                   </Link>
                 </li>
               );
             })}
+
+            {/* Projects dropdown */}
+            <li>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-current={projectsActive ? "true" : undefined}
+                  className={linkClasses(projectsActive, false) +
+                    " inline-flex items-center gap-1 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"}
+                >
+                  <FolderGit2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  Projects
+                  <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="min-w-[10rem]">
+                  {PROJECT_NAV_ITEMS.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href}>{item.label}</Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
           </ul>
-          <div className="ml-3 border-l border-border pl-3">
-            <OAuthLoginButtons />
+          <div className="ml-2 border-l border-border pl-2">
+            <OAuthLoginDropdown />
           </div>
           <div className="ml-2 border-l border-border pl-2">
             <ThemeToggle />
@@ -59,7 +92,7 @@ export function Header() {
         {/* Mobile: login + burger */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <OAuthLoginButtons />
+          <OAuthLoginDropdown />
           <button
             type="button"
             aria-expanded={menuOpen}
@@ -88,7 +121,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile nav panel */}
+      {/* Mobile nav panel: flat list, project links included inline */}
       {menuOpen && (
         <nav
           id="mobile-nav"
@@ -96,7 +129,7 @@ export function Header() {
           className="border-t border-border md:hidden"
         >
           <ul className="mx-auto max-w-5xl px-4 py-2">
-            {NAV_ITEMS.map((item) => {
+            {TOP_NAV_ITEMS.map((item) => {
               const active =
                 item.href === "/"
                   ? pathname === "/"
@@ -106,11 +139,23 @@ export function Header() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`block rounded-md px-3 py-2 text-sm ${
-                      active
-                        ? "bg-accent font-medium text-accent-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    }`}
+                    className={linkClasses(active, true)}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+            <li aria-hidden="true" className="my-1 h-px bg-border" />
+            {PROJECT_NAV_ITEMS.map((item) => {
+              const active = pathname.startsWith(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={linkClasses(active, true)}
                     onClick={() => setMenuOpen(false)}
                   >
                     {item.label}

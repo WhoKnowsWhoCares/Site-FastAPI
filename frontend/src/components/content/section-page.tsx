@@ -34,9 +34,9 @@ export const SECTION_DEFAULTS: Record<
     ],
   },
   sdart: {
-    title: "SD Art",
+    title: "AI Art",
     paragraphs: [
-      "Gallery of images generated with Stable Diffusion.",
+      "Gallery of images generated and edited with neural networks.",
       "This section is managed from the ControlPanel — content will appear here once published.",
     ],
   },

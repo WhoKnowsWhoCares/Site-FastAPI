@@ -25,5 +25,5 @@ export const CONTENT_SECTION_LABELS: Record<string, string> = {
   aboutme: "About Me",
   ihome: "iHome",
   trade4me: "Trade4Me",
-  sdart: "SD Art",
+  sdart: "AI Art",
 };

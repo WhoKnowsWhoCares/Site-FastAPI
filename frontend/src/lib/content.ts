@@ -31,7 +31,7 @@ export async function fetchPageContent(
   }
 }
 
-/** Fetch SD Art gallery items. Returns [] when unavailable. */
+/** Fetch AI Art gallery items. Returns [] when unavailable. */
 export async function fetchGallery(): Promise<GalleryItem[]> {
   try {
     const res = await fetch(apiUrl("/api/v1/content/sdart/gallery"), {

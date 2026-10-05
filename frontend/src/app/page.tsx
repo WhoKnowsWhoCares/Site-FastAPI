@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { SectionCard } from "@/components/layout/section-card";
+import { SUMMARY } from "@/components/about/about-data";
 
 const SKILL_BADGES = [
   "Python",
@@ -17,7 +18,19 @@ const SKILL_BADGES = [
   "FastAPI",
   "Docker",
   "Home Assistant",
-  "Stable Diffusion",
+  "AI Art",
+  // from About Me → Skills
+  "scikit-learn",
+  "pandas",
+  "LightGBM",
+  "Optuna",
+  "Forecasting",
+  "NLP",
+  "A/B testing",
+  "ClickHouse",
+  "YTsaurus",
+  "Git",
+  "Linux",
 ] as const;
 
 const SECTIONS = [
@@ -43,8 +56,8 @@ const SECTIONS = [
   },
   {
     href: "/sdart",
-    title: "SD Art",
-    description: "Image gallery generated and edited with Stable Diffusion.",
+    title: "AI Art",
+    description: "Image gallery generated and edited with neural networks.",
     icon: Palette,
   },
 ] as const;
@@ -87,6 +100,19 @@ export default function HomePage() {
               </li>
             ))}
           </ul>
+
+          {/* Experience stats */}
+          <dl className="mt-6 grid max-w-md grid-cols-2 gap-3">
+            {SUMMARY.stats.map((s) => (
+              <div
+                key={s.label}
+                className="rounded-lg border border-border bg-card p-3"
+              >
+                <dt className="text-xs text-muted-foreground">{s.label}</dt>
+                <dd className="mt-0.5 text-base font-semibold">{s.years}</dd>
+              </div>
+            ))}
+          </dl>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link

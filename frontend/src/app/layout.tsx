@@ -28,15 +28,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alexander Frantsev — Senior Data Scientist",
     description:
-      "ML products end-to-end: fintech, big tech, retail. Smart home, trading and SD art on the side.",
+      "ML products end-to-end: fintech, big tech, retail. Smart home, trading and AI art on the side.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#111033" },
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#171f38" },
+    { media: "(prefers-color-scheme: light)", color: "#f9fafb" },
   ],
 };
 

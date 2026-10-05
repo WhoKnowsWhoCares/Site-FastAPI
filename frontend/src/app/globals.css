@@ -3,73 +3,102 @@
 @tailwind utilities;
 
 /*
- * Palette — sampled from the user's light_palette.png / dark_palette.png.
- * Dark theme (default): indigo/violet night palette
- *   background #111033, card #1a1845, border #2d3667, primary #403a83, accent #42007a
- * Light theme: warm cream + indigo palette
- *   background #f8f9fb, secondary #f5ebe2, rose #f3c8bf, muted #737292, primary #2d4083
+ * ============================================================
+ *  BRAND PALETTE — single place to retheme the whole site.
+ *  Colors sampled from the reference site (localhost:3002,
+ *  "pixel.css" theme: navy panels, white base, blue accents).
+ *  Format: HSL triplets without the hsl() wrapper.
+ *  To change the look, edit ONLY this block.
+ * ============================================================
  */
 @layer base {
   :root {
-    --background: 220 27% 98%; /* #f8f9fb */
-    --foreground: 227 49% 20%; /* dark indigo derived from #2d4083 */
+    /* --- Brand tokens (raw palette) --- */
+    --pf-navy: 225 36% 22%;        /* #242e4c — primary navy (panels, headers) */
+    --pf-navy-deep: 225 39% 18%;   /* #1c2540 — darker navy (cards, footer) */
+    --pf-navy-black: 225 42% 15%;  /* #171f38 — darkest navy (backgrounds) */
+    --pf-blue: 214 70% 38%;        /* #1d58a5 — tertiary blue (links, buttons) */
+    --pf-indigo: 235 42% 44%;      /* #424aa0 — secondary app indigo */
+    --pf-mist: 191 38% 94%;        /* #ebf4f6 — pale blue-white tint */
+    --pf-lavender: 255 100% 86%;   /* #c8b6ff — soft lavender accent */
+    --pf-purple: 255 100% 74%;     /* #9a79ff — vivid purple accent */
+    --pf-green: 158 50% 46%;       /* #3aaf85 — success green */
+    --pf-orange: 10 81% 52%;       /* #e84422 — warning orange */
+    --pf-gray-50: 210 20% 98%;     /* #f9fafb */
+    --pf-gray-100: 220 13% 91%;    /* #e5e7eb */
+    --pf-gray-400: 218 11% 65%;    /* #9ca3af */
+    --pf-gray-500: 220 9% 46%;     /* #6b7280 */
+    --pf-gray-800: 215 28% 17%;    /* #1f2937 — body text on light */
+    --pf-white: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 227 49% 20%;
+    /*
+     * --- Semantic tokens (mapped from brand tokens) ---
+     * Light theme.
+     */
+    --background: var(--pf-gray-50);
+    --foreground: var(--pf-gray-800);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 227 49% 20%;
+    --card: var(--pf-white);
+    --card-foreground: var(--pf-gray-800);
 
-    --primary: 227 49% 35%; /* #2d4083 */
-    --primary-foreground: 220 27% 98%;
+    --popover: var(--pf-white);
+    --popover-foreground: var(--pf-gray-800);
 
-    --secondary: 28 49% 92%; /* #f5ebe2 */
-    --secondary-foreground: 227 49% 25%;
+    --primary: var(--pf-navy);
+    --primary-foreground: var(--pf-mist);
 
-    --muted: 28 49% 92%; /* #f5ebe2 */
-    --muted-foreground: 242 13% 51%; /* #737292 */
+    --secondary: var(--pf-mist);
+    --secondary-foreground: var(--pf-navy);
 
-    --accent: 10 68% 85%; /* #f3c8bf */
-    --accent-foreground: 227 49% 22%;
+    --muted: var(--pf-gray-100);
+    --muted-foreground: var(--pf-gray-500);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --accent: var(--pf-lavender);
+    --accent-foreground: var(--pf-navy-deep);
 
-    --border: 242 20% 86%;
-    --input: 242 20% 86%;
-    --ring: 227 49% 35%;
+    --destructive: var(--pf-orange);
+    --destructive-foreground: var(--pf-white);
+
+    --border: var(--pf-gray-100);
+    --input: var(--pf-gray-100);
+    --ring: var(--pf-blue);
 
     --radius: 0.5rem;
   }
 
+  /*
+   * Dark theme (site default, set in layout ThemeProvider).
+   * Same brand tokens, inverted roles: navy-black background,
+   * deeper navy cards, blue/lavender accents.
+   */
   .dark {
-    --background: 242 52% 13%; /* #111033 */
-    --foreground: 250 69% 88%; /* soft lavender text derived from #b3a7ef */
+    --background: var(--pf-navy-black);
+    --foreground: 220 27% 92%; /* pale blue-white text, derived from --pf-mist */
 
-    --card: 243 48% 18%; /* #1a1845 */
-    --card-foreground: 250 69% 88%;
+    --card: var(--pf-navy-deep);
+    --card-foreground: 220 27% 92%;
 
-    --popover: 243 48% 16%;
-    --popover-foreground: 250 69% 88%;
+    --popover: var(--pf-navy-deep);
+    --popover-foreground: 220 27% 92%;
 
-    --primary: 245 39% 37%; /* #403a83 */
-    --primary-foreground: 250 69% 90%;
+    --primary: var(--pf-blue);
+    --primary-foreground: var(--pf-white);
 
-    --secondary: 246 36% 23%; /* #2a2650 */
-    --secondary-foreground: 250 41% 78%;
+    --secondary: var(--pf-navy);
+    --secondary-foreground: 220 27% 88%;
 
-    --muted: 231 39% 29%; /* #2d3667 */
-    --muted-foreground: 253 45% 78%; /* light lavender derived from #a99dd6, AA-safe on #111033 */
+    --muted: var(--pf-navy);
+    --muted-foreground: var(--pf-gray-400);
 
-    --accent: 272 100% 24%; /* #42007a */
-    --accent-foreground: 250 69% 88%;
+    --accent: var(--pf-purple);
+    --accent-foreground: var(--pf-navy-black);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: var(--pf-orange);
+    --destructive-foreground: var(--pf-white);
 
-    --border: 231 39% 29%; /* #2d3667 */
-    --input: 231 39% 29%;
-    --ring: 253 41% 73%;
+    --border: var(--pf-navy);
+    --input: var(--pf-navy);
+    --ring: var(--pf-lavender);
   }
 }
 

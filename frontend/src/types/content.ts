@@ -26,7 +26,7 @@ export interface PageContent {
   updatedAt?: string;
 }
 
-/** Gallery item for the SD Art section. */
+/** Gallery item for the AI Art section. */
 export interface GalleryItem {
   id: string;
   url: string;

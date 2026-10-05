@@ -12,7 +12,7 @@ export function Footer() {
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Alexander
+          © {new Date().getFullYear()} FrantsTech
         </p>
         <ul className="flex items-center gap-4" aria-label="Social links">
           {SOCIAL_LINKS.map((link) => (
