@@ -132,8 +132,7 @@ export const CONTACTS = {
 /** Portrait carousel images, served from /public/me. */
 export const PORTRAITS = [
   { src: "/me/portrait-1.webp", alt: "Alexander Frantsev — portrait 1" },
-  { src: "/me/portrait-2.webp", alt: "Alexander Frantsev — portrait 2" },
-  { src: "/me/portrait-3.webp", alt: "Alexander Frantsev — portrait 3" },
+  { src: "/me/portrait-3.webp", alt: "Alexander Frantsev — portrait 2" },
 ];
 
 export const CV_DOWNLOAD_URL = "/cv.pdf";

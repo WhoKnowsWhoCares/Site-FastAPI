@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TOP_NAV_ITEMS, PROJECT_NAV_ITEMS, isProjectPath } from "./nav-items";
-import { OAuthLoginDropdown } from "./oauth-login-dropdown";
 import { ThemeToggle } from "./theme-toggle";
 
 const linkClasses = (active: boolean, block = false) =>
@@ -82,17 +81,13 @@ export function Header() {
             </li>
           </ul>
           <div className="ml-2 border-l border-border pl-2">
-            <OAuthLoginDropdown />
-          </div>
-          <div className="ml-2 border-l border-border pl-2">
             <ThemeToggle />
           </div>
         </nav>
 
-        {/* Mobile: login + burger */}
+        {/* Mobile: theme toggle + burger */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <OAuthLoginDropdown />
           <button
             type="button"
             aria-expanded={menuOpen}

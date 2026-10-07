@@ -9,8 +9,14 @@ services:
       - path: .env.production
         required: false
     environment:
-      # PostgreSQL inside the compose network; host nginx proxies to 127.0.0.1:8000
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-siteuser}:${POSTGRES_PASSWORD:-sitepass}@db:5432/${POSTGRES_DB:-site}
+      # SQLite file inside the container volume; host nginx proxies to 127.0.0.1:8000.
+      # The DB is currently unused (all page content is static in the frontend) —
+      # the backend only runs migrations against this file to stay migration-ready.
+      # To restore PostgreSQL, comment DATABASE_URL back in and uncomment the db
+      # service + backend depends_on below.
+      - DATABASE_URL=sqlite:///./data/site.db
+    volumes:
+      - backend-data:/app/data
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
@@ -19,11 +25,28 @@ services:
       timeout: 5s
       start_period: 15s
       retries: 3
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - site-net
+
+  # --- PostgreSQL (disabled: not used by any live feature) ---
+  # db:
+  #   image: postgres:17-alpine
+  #   container_name: site-db
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER:-siteuser}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sitepass}
+  #     - POSTGRES_DB=${POSTGRES_DB:-site}
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-siteuser} -d $${POSTGRES_DB:-site}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     start_period: 10s
+  #     retries: 5
+  #   networks:
+  #     - site-net
 
   frontend:
     build:
@@ -48,27 +71,8 @@ services:
     networks:
       - site-net
 
-  db:
-    image: postgres:17-alpine
-    container_name: site-db
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-siteuser}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sitepass}
-      - POSTGRES_DB=${POSTGRES_DB:-site}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-siteuser} -d $${POSTGRES_DB:-site}"]
-      interval: 10s
-      timeout: 5s
-      start_period: 10s
-      retries: 5
-    networks:
-      - site-net
-
 volumes:
-  pgdata:
+  backend-data:
 
 networks:
   site-net:

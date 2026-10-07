@@ -45,7 +45,7 @@ const SECTIONS = [
     href: "/ihome",
     title: "iHome",
     description:
-      "Smart home on Home Assistant: sensors, automations and dashboards.",
+      "Smart home on Home Assistant: Raspberry Pi 4 server, Zigbee/WiFi/ESPHome sensors, automations and dashboards.",
     icon: HomeIcon,
   },
   {
