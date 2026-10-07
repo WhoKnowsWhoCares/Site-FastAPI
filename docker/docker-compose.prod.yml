@@ -1,0 +1,14 @@
+# Production compose: runs pre-built images from ghcr.io instead of local builds.
+# Usage:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml pull
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+#
+# Local development keeps using the base docker-compose.yml (build: directives).
+services:
+  backend:
+    build: !reset null
+    image: ghcr.io/whoknowswhocares/site-fastapi-backend:latest
+
+  frontend:
+    build: !reset null
+    image: ghcr.io/whoknowswhocares/site-fastapi-frontend:latest
