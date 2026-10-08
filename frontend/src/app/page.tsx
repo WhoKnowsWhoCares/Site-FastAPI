@@ -51,7 +51,8 @@ const SECTIONS = [
   {
     href: "/trade4me",
     title: "Trade4Me",
-    description: "Trading bot: strategy, statistics and current status.",
+    description:
+      "Trading automation: three-level market analysis from global macro to intraday, ML-driven news pipeline.",
     icon: LineChart,
   },
   {
