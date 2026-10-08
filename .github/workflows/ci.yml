@@ -1,10 +1,13 @@
 name: CI/CD
 
+# PR gate: full test suite + build verification, no publishing.
+# Pushes to main are handled by docker-images.yml (tests -> build -> ghcr.io),
+# so tests run exactly once per change.
+
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   backend-tests:
