@@ -38,12 +38,14 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     url: SITE_URL,
     locale: "en_US",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Alexander Frantsev — Senior Data Scientist (FrantsTech)" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Alexander Frantsev — Senior Data Scientist",
     description:
       "ML products end-to-end: fintech, big tech, retail. Smart home, trading and AI art on the side.",
+    images: ["/og.png"],
   },
 };
 
