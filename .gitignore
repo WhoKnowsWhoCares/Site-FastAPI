@@ -31,7 +31,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.env.production
+.env.dev
+.env.prod
 
 # uv
 uv.lock

@@ -6,7 +6,7 @@ services:
     container_name: site-backend
     restart: unless-stopped
     env_file:
-      - path: .env.production
+      - path: .env.dev
         required: false
     environment:
       # SQLite file inside the container volume; host nginx proxies to 127.0.0.1:8000.
