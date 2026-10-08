@@ -1,14 +1,105 @@
-# Production compose: runs pre-built images from ghcr.io instead of local builds.
-# Usage:
-#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml pull
-#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+# Standalone production compose — self-contained, no base file needed.
 #
-# Local development keeps using the base docker-compose.yml (build: directives).
+# Copy this file (and .env.prod, see .env.prod.example) to the server, then:
+#
+#   cp .env.prod.example .env.prod && $EDITOR .env.prod
+#   docker compose -f docker-compose.prod.yml pull      # or: docker login ghcr.io first, if the packages are still private
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# The site must sit behind a reverse proxy (nginx example: nginx.host.conf.example)
+# — containers publish only on 127.0.0.1.
+#
+# Images are built and pushed automatically by GitHub Actions on every push to main:
+#   ghcr.io/whoknowswhocares/site-fastapi-frontend
+#   ghcr.io/whoknowswhocares/site-fastapi-backend
+# Pin a specific version by replacing :latest with a tag from
+# https://github.com/WhoKnowsWhoCares/Site-FastAPI/pkgs/container/... (e.g. sha-9709f21).
+#
+# NOTE: variables from .env.prod are passed INTO the container via env_file.
+# To use them in THIS compose file (e.g. for the optional Postgres service),
+# run compose with --env-file .env.prod.
+
 services:
   backend:
-    build: !reset null
     image: ghcr.io/whoknowswhocares/site-fastapi-backend:latest
+    container_name: site-backend
+    restart: unless-stopped
+    env_file:
+      - path: .env.prod
+        required: true
+    environment:
+      # Sane defaults; .env.prod values win because env_file is loaded after.
+      # SQLite file inside the container volume; host nginx proxies to 127.0.0.1:8000.
+      - DATABASE_URL=sqlite:///./data/site.db
+      - DEBUG=false
+      - FRONTEND_URL=https://frants.tech
+    volumes:
+      - backend-data:/app/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      - site-net
+
+  # --- PostgreSQL (optional, disabled by default: no live feature uses the DB) ---
+  # To switch the backend to Postgres:
+  #   1. uncomment this service
+  #   2. in .env.prod set:
+  #        BACKEND_DATABASE_URL=postgresql+asyncpg://siteuser:<password>@db:5432/site
+  #        POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB
+  #      (env_file values override the environment defaults above, so the
+  #       backend picks the Postgres URL automatically)
+  #   3. run: docker compose --env-file .env.prod -f docker-compose.prod.yml --profile postgres up -d
+  # db:
+  #   image: postgres:17-alpine
+  #   container_name: site-db
+  #   restart: unless-stopped
+  #   profiles: ["postgres"]
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER:-siteuser}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.prod}
+  #     - POSTGRES_DB=${POSTGRES_DB:-site}
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-siteuser} -d $${POSTGRES_DB:-site}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     start_period: 10s
+  #     retries: 5
+  #   networks:
+  #     - site-net
 
   frontend:
-    build: !reset null
     image: ghcr.io/whoknowswhocares/site-fastapi-frontend:latest
+    container_name: site-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=/api
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - site-net
+
+volumes:
+  backend-data:
+  # pgdata:
+
+networks:
+  site-net:
+    driver: bridge
