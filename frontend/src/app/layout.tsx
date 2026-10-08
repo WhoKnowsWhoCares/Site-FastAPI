@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Sora, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/layout/header";
@@ -19,17 +20,30 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Alexander Frantsev — Senior Data Scientist",
-    template: "%s — Alexander Frantsev",
+    template: `%s — ${SITE_NAME}`,
   },
   description:
     "Senior Data Scientist: ML products end-to-end, fintech & big tech. Smart home, trading bots and generated art as side projects.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Alexander Frantsev — Senior Data Scientist",
     description:
       "ML products end-to-end: fintech, big tech, retail. Smart home, trading and AI art on the side.",
     type: "website",
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Alexander Frantsev — Senior Data Scientist",
+    description:
+      "ML products end-to-end: fintech, big tech, retail. Smart home, trading and AI art on the side.",
   },
 };
 

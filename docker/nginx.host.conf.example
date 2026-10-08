@@ -11,7 +11,21 @@
 
 server {
     listen 80;
-    server_name _;
+    server_name frants.tech www.frants.tech;
+
+    # Redirect everything to HTTPS (certbot will add the 443 server block below).
+    return 301 https://frants.tech$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name frants.tech;
+
+    # Certbot fills these; obtain with:
+    #   sudo certbot --nginx -d frants.tech -d www.frants.tech
+    ssl_certificate     /etc/letsencrypt/live/frants.tech/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/frants.tech/privkey.pem;
 
     # Request size limit for admin content uploads
     client_max_body_size 20m;

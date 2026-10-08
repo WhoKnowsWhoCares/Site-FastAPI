@@ -1,0 +1,7 @@
+# ai.txt — how AI systems may use this site (https://frants.tech)
+# Site owner: Alexander Frantsev (FrantsTech)
+# Contact: as.frantsev@gmail.com
+
+# Training on this site's content: not permitted without prior permission.
+# Inference / citation: AI assistants may quote and cite pages with attribution
+# and a link to the source page.

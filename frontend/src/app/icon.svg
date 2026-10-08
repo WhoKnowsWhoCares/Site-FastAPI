@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- FrantsTech monogram: dark navy tile, Sora-style "F." -->
+  <rect width="64" height="64" rx="14" fill="#171f38"/>
+  <text x="32" y="45" font-family="Sora, ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="700" fill="#c8b6ff" text-anchor="middle">F</text>
+  <circle cx="47" cy="42" r="3.5" fill="#9a79ff"/>
+</svg>
