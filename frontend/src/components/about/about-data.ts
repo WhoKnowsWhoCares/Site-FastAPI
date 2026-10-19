@@ -73,6 +73,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
     period: "2024–2026",
     org: "Yandex — FinTech, Payment Analytics",
     role: "Analyst-Developer (Data Scientist)",
+    // Past employment; no "current" wording anywhere on the site.
     points: [
       "Owned the payment incident prediction system for Yandex Bank (100k+ DAU) end-to-end; prevents faulty transaction traffic estimated at ~700M RUB/year",
       "Re-architected the anomaly predictor (Python, Arcadia, Nirvana, YTsaurus): from a fragile single-maintainer setup to a testable, versioned product with CI and monitoring",

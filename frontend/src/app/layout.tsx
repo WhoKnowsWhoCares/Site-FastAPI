@@ -28,7 +28,8 @@ const personJsonLd = {
   url: SITE_URL,
   image: `${SITE_URL}/og.png`,
   jobTitle: "Senior Data Scientist",
-  worksFor: { "@type": "Organization", name: "Yandex" },
+  // No current employer listed; Yandex stays in the Experience section as past work.
+  alumniOf: { "@type": "Organization", name: "Yandex" },
   description:
     "Senior Data Scientist: ML products end-to-end, fintech & big tech. Smart home, trading bots and generated art as side projects.",
   address: {
