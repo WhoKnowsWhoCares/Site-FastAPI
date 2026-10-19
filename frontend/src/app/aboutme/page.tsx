@@ -28,7 +28,7 @@ export default function AboutMePage() {
               Alexander Frantsev
             </h1>
             <p className="mt-1 font-mono text-sm text-muted-foreground">
-              {SUMMARY.headline}
+              {SUMMARY.headline} · {SUMMARY.location}
             </p>
             <p className="mt-4 text-base leading-7 text-foreground/90">
               {SUMMARY.blurb}

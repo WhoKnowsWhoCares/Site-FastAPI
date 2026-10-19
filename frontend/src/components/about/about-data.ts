@@ -9,6 +9,7 @@ export interface ExperienceEntry {
 
 export const SUMMARY = {
   headline: "Senior Data Scientist",
+  location: "Moscow, Russia",
   blurb:
     "I own ML products end-to-end — from architecture and modeling to production, monitoring and business impact. Fintech, big tech and retail background with a strong academic foundation in mathematics and economics.",
   stats: [
@@ -131,8 +132,8 @@ export const CONTACTS = {
 
 /** Portrait carousel images, served from /public/me. */
 export const PORTRAITS = [
-  { src: "/me/portrait-1.webp", alt: "Alexander Frantsev — portrait 1" },
-  { src: "/me/portrait-3.webp", alt: "Alexander Frantsev — portrait 2" },
+  { src: "/me/portrait-1.webp", alt: "Alexander Frantsev — Senior Data Scientist, portrait 1" },
+  { src: "/me/portrait-3.webp", alt: "Alexander Frantsev — Senior Data Scientist, portrait 2" },
 ];
 
 export const CV_DOWNLOAD_URL = "/cv.pdf";
