@@ -1,0 +1,4 @@
+Contact: mailto:as.frantsev@gmail.com
+Expires: 2027-10-19T00:00:00.000Z
+Preferred-Languages: en, ru
+Canonical: https://frants.tech/.well-known/security.txt

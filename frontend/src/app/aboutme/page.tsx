@@ -12,7 +12,17 @@ import {
 } from "@/components/about/about-data";
 import { PortraitCarousel } from "@/components/about/portrait-carousel";
 
-export const metadata: Metadata = { title: "About Me" };
+export const metadata: Metadata = {
+  title: "About Me",
+  description:
+    "Alexander Frantsev — Senior Data Scientist in Moscow: 5+ years of ML products in fintech and big tech, Yandex and SAS Institute background.",
+  openGraph: {
+    title: "Alexander Frantsev — Senior Data Scientist",
+    description:
+      "5+ years of ML products end-to-end: fintech, big tech, retail. Mathematics & economics background.",
+    images: [{ url: "/me/portrait-1.webp", width: 1067, height: 1600, alt: "Alexander Frantsev — Senior Data Scientist" }],
+  },
+};
 
 export default function AboutMePage() {
   return (

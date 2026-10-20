@@ -9,7 +9,17 @@ import {
 } from "@/components/ihome/ihome-data";
 import { MediaGrid } from "@/components/ihome/media-grid";
 
-export const metadata: Metadata = { title: "iHome" };
+export const metadata: Metadata = {
+  title: "iHome",
+  description:
+    "Smart home on Home Assistant: Raspberry Pi 4 server, Zigbee/WiFi/ESPHome sensors, morning automations, Telegram bot and Yandex Alice.",
+  openGraph: {
+    title: "iHome — smart home on Home Assistant",
+    description:
+      "Raspberry Pi 4 server, Zigbee/WiFi/ESPHome sensors, morning automations and a full dashboard.",
+    images: [{ url: "/ihome/dashboard.webp", width: 1920, height: 1080, alt: "Home Assistant dashboard — sensors, air quality, lights, calendar, music" }],
+  },
+};
 
 export default function IHomePage() {
   return (

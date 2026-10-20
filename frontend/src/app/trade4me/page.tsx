@@ -7,7 +7,17 @@ import {
   STACK,
 } from "@/components/trade4me/trade4me-data";
 
-export const metadata: Metadata = { title: "Trade4Me" };
+export const metadata: Metadata = {
+  title: "Trade4Me",
+  description:
+    "Trading automation: three-level market analysis from global macro to intraday, ML-driven news pipeline with Telegram digests.",
+  openGraph: {
+    title: "Trade4Me — trading automation",
+    description:
+      "Three-level market analysis and an ML news pipeline: parsing, summarization, sentiment, Telegram digests.",
+    images: [{ url: "/trade4me/newsparser-dark.webp", width: 1090, height: 515, alt: "News Parser architecture: sources, ML summarization and sentiment, Telegram" }],
+  },
+};
 
 export default function Trade4MePage() {
   return (
